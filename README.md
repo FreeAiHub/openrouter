@@ -61,6 +61,48 @@ This script sends a task to Manus and prints the result from the ManusClient.
 
 ---
 
+## How to Import
+
+### Basic Usage
+
+```python
+from manus import ManusClient, ManusWebhookHandler
+
+# Create Manus client
+client = ManusClient(api_key="sk-manus-xxx")
+
+# Create a task
+task = client.create_task(
+    prompt="Analyze this Python code",
+    context="def hello(): print('Hello, world!')"
+)
+
+# Wait for result
+result = client.wait_for_completion(task["task_id"])
+print(result["result"])
+```
+
+### With OpenRouter
+
+```python
+from src.openrouter import OpenRouterClient, Message
+from manus import ManusClient
+
+# OpenRouter for chat
+or_client = OpenRouterClient()
+messages = [Message(role="user", content="What is AI?")]
+response = or_client.chat_completion(messages)
+
+# Manus for code analysis
+manus_client = ManusClient()
+task = manus_client.create_task(
+    prompt="Review this code",
+    context="code_here.py"
+)
+```
+
+---
+
 ## Project Structure
 
 Key parts of the project:
