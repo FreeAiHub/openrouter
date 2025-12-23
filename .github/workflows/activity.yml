@@ -1,0 +1,53 @@
+name: Update Activity and Docs
+
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # Обновление активности каждый день
+    - cron: '0 12 * * *'
+
+jobs:
+  update-readme:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Generate stats
+      run: |
+        # Генерация статистики проекта
+        echo "## 📊 Статистика проекта" > STATS.md
+        echo "" >> STATS.md
+        echo "**Дата обновления:** $(date +'%Y-%m-%d %H:%M:%S UTC')" >> STATS.md
+        echo "" >> STATS.md
+        echo "### Коммиты" >> STATS.md
+        echo "Всего коммитов: $(git rev-list --all --count)" >> STATS.md
+        echo "" >> STATS.md
+        echo "### Файлы" >> STATS.md
+        echo "Python файлов: $(find . -name '*.py' | wc -l)" >> STATS.md
+        echo "Строк кода: $(find . -name '*.py' -exec wc -l {} + | tail -1 | awk '{print $1}')" >> STATS.md
+        echo "" >> STATS.md
+        echo "### Последние коммиты" >> STATS.md
+        git log --pretty=format:"- %s (%an, %ar)" -10 >> STATS.md
+
+    - name: Update activity badge
+      run: |
+        # Создание badge для активности
+        echo "![Last Commit](https://img.shields.io/github/last-commit/FreeAiHub/openrouter)" > ACTIVITY.md
+        echo "![Commits](https://img.shields.io/github/commit-activity/m/FreeAiHub/openrouter)" >> ACTIVITY.md
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add STATS.md ACTIVITY.md || true
+        git diff --quiet && git diff --staged --quiet || git commit -m "📊 Автоматическое обновление статистики"
+        git push || true
