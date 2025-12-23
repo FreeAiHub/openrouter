@@ -138,7 +138,9 @@ openrouter-1/
 │   └── README.md                # Документация (10 KB)
 │
 ├── tests/
-│   └── test_manus.py            # ✅ 30 тестов
+│   ├── test_manus.py            # ✅ 30 тестов
+│   ├── test_full_integration.py # ✅ Интеграционные тесты
+│   └── test_simple.py           # ✅ Простые тесты
 │
 ├── examples/
 │   └── manus_example.py         # ✅ 7 примеров
@@ -148,10 +150,17 @@ openrouter-1/
 │
 ├── pytest.ini                    # ✅ Pytest конфигурация
 ├── .env                          # ✅ API ключи
-│
-├── test_simple.py                # ✅ Простой тест
-├── test_full_integration.py      # ✅ Полный тест
-└── debug_manus.py                # ✅ Debug script
+├── Makefile                      # ✅ Удобные команды
+└── docs/archive/                 # ✅ Вспомогательные файлы
+    ├── AGENT_LEARNING_GUIDE.md
+    ├── CLAUDE.md
+    ├── QUICK_SUMMARY.md
+    ├── TOMORROW_PLAN.md
+    ├── debug_manus.py
+    ├── manus_client.py
+    ├── push-to-github.sh
+    ├── setup.sh
+    └── SUCCESS_SUMMARY_RU.md
 ```
 
 ---
@@ -226,7 +235,7 @@ openrouter-1/
 ```markdown
 User: "Запусти full-stack-developer агента для создания Real-Time Monitor.
 
-Следуй плану из TOMORROW_PLAN.md, секция 'Шаг 4: Real-Time Monitor'.
+Следуй плану из docs/archive/TOMORROW_PLAN.md, секция 'Шаг 4: Real-Time Monitor'.
 
 Создай src/manus/monitor.py с:
 - Live мониторинг статуса задач
@@ -320,15 +329,15 @@ User: "Запусти full-stack-developer для GitHub Webhooks integration"
 ## 📚 Полезные Ссылки
 
 ### Документация
-- [AGENT_LEARNING_GUIDE.md](AGENT_LEARNING_GUIDE.md) - Гайд по обучению с агентами
+- [docs/archive/AGENT_LEARNING_GUIDE.md](docs/archive/AGENT_LEARNING_GUIDE.md) - Гайд по обучению с агентами
 - [ARCHITECTURE.md](ARCHITECTURE.md) - Архитектура системы
-- [CLAUDE.md](CLAUDE.md) - Полный план развития
-- [TOMORROW_PLAN.md](TOMORROW_PLAN.md) - План на Фазу 2
+- [docs/archive/CLAUDE.md](docs/archive/CLAUDE.md) - Полный план развития
+- [docs/archive/TOMORROW_PLAN.md](docs/archive/TOMORROW_PLAN.md) - План на Фазу 2
 
 ### Тестовые Скрипты
-- `test_simple.py` - Простой тест API
-- `test_full_integration.py` - Полный интеграционный тест
-- `debug_manus.py` - Debug Manus API
+- `tests/test_simple.py` - Простой тест API
+- `tests/test_full_integration.py` - Полный интеграционный тест
+- `docs/archive/debug_manus.py` - Debug Manus API
 
 ### Команды
 ```bash
@@ -336,10 +345,15 @@ User: "Запусти full-stack-developer для GitHub Webhooks integration"
 pytest tests/test_manus.py -v
 
 # Запустить интеграционные тесты
-python3 test_full_integration.py
+pytest tests/test_full_integration.py tests/test_simple.py -q
 
 # Проверить импорты
 python3 -c "from src.manus import ManusClient; print('OK')"
+
+# Использовать Makefile
+make test
+make run-example
+make help
 ```
 
 ---

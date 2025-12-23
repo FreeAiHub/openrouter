@@ -1,426 +1,125 @@
-# OpenRouter API Integration - Enterprise Edition
+# OpenRouter + Manus Integration
 
-## 🎯 Overview
+This repository provides a small, focused integration between OpenRouter and Manus AI.  
+It exposes a simple Python client, webhook handler, and examples for running async LLM tasks via Manus.
 
-Enterprise-grade Python integration for OpenRouter API with production-ready features:
+## Quickstart
 
-- ✅ Type-safe with Pydantic models
-- ✅ Automatic retries with exponential backoff
-- ✅ Circuit breaker pattern for fault tolerance
-- ✅ Comprehensive error handling
-- ✅ Cost tracking and monitoring
-- ✅ Request/response logging
-- ✅ Connection pooling
-- ✅ Configuration management
-- ✅ Test coverage
-
-## 📋 Prerequisites
-
-- Python 3.9+
-- OpenRouter API key
-- pip or poetry for dependency management
-
-## 🚀 Quick Start
-
-### 1. Installation
+### 1. Clone and install
 
 ```bash
-# Clone the repository
-git clone <your-repo>
-cd openrouter-integration
+git clone https://github.com/FreeAiHub/openrouter.git
+cd openrouter
 
-# Create virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# choose one: uv / pip / poetry, here is a simple pip example
 
-# Install dependencies
+python -m venv .venv
+source .venv/bin/activate  # on Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### 2. Configuration
+### 2. Configure environment
+
+Create a local `.env` file from the example:
 
 ```bash
-# Copy environment template
 cp .env.example .env
-
-# Edit .env and add your API key
-nano .env
 ```
 
-Required `.env` configuration:
+Fill in the required keys:
 
 ```bash
-OPENROUTER_API_KEY=sk-or-v1-your-key-here
-DEFAULT_MODEL=xiaomi/mimo-v2-flash:free
-ENVIRONMENT=development
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxx
+MANUS_API_KEY=sk-manus-xxxxxxxx
+MANUS_BASE_URL=https://api.manus.ai/v1
 ```
 
-### 3. Basic Usage
+Other variables in `.env.example` are optional and used for dashboards, GitHub webhooks, and monitoring.
 
-```python
-from src.openrouter import OpenRouterClient, Message
-
-# Create client
-with OpenRouterClient() as client:
-    # Send message
-    messages = [Message(role="user", content="Hello!")]
-    response = client.chat_completion(messages)
-    
-    # Print response
-    print(response.choices[0].message.content)
-```
-
-### 4. Run Examples
+### 3. Run tests
 
 ```bash
-# Basic examples
-python examples/basic_usage.py
+# all tests
+pytest -q
 
-# Streaming example
-python examples/streaming_demo.py
+# unit tests for Manus client
+pytest tests/test_manus.py -q
 
-# Batch processing
-python examples/batch_processing.py
+# integration examples
+pytest tests/test_full_integration.py tests/test_simple.py -q
 ```
 
-## 📚 Features
+### 4. Run example
 
-### Type-Safe API
-
-All requests and responses use Pydantic models:
-
-```python
-from src.openrouter import Message, ChatCompletionResponse
-
-messages = [Message(role="user", content="Hello")]
-response: ChatCompletionResponse = client.chat_completion(messages)
-```
-
-### Automatic Retries
-
-Built-in retry logic with exponential backoff:
-
-```python
-# Configured in settings
-MAX_RETRIES=3
-RETRY_DELAY=2
-```
-
-### Circuit Breaker
-
-Prevents cascading failures:
-
-```python
-# Automatically handles:
-# - Failure threshold: 5 errors
-# - Recovery timeout: 60 seconds
-# - States: CLOSED -> OPEN -> HALF_OPEN
-```
-
-### Cost Tracking
-
-Monitor API costs in real-time:
-
-```python
-# Get cost estimate
-cost = client.estimate_cost(
-    model="xiaomi/mimo-v2-flash:free",
-    input_tokens=100,
-    output_tokens=50
-)
-print(cost.format_cost())  # $0.00 (Free)
-
-# Get metrics summary
-summary = client.get_metrics_summary()
-print(f"Total cost: {summary['total_cost_usd']}")
-```
-
-### Streaming Support
-
-Real-time response streaming:
-
-```python
-for chunk in client.stream_chat_completion(messages):
-    print(chunk, end="", flush=True)
-```
-
-### Error Handling
-
-Comprehensive exception hierarchy:
-
-```python
-from src.openrouter.exceptions import (
-    AuthenticationError,
-    RateLimitError,
-    ModelNotFoundError
-)
-
-try:
-    response = client.chat_completion(messages)
-except RateLimitError as e:
-    print(f"Rate limited: {e.message}")
-except AuthenticationError:
-    print("Invalid API key")
-```
-
-## 🏗️ Architecture
-
-```
-┌─────────────────┐
-│  Application    │
-└────────┬────────┘
-         │
-┌────────▼────────┐
-│   OpenRouter    │◄─────── Circuit Breaker
-│     Client      │
-└────────┬────────┘
-         │
-    ┌────┼────┐
-    │    │    │
-┌───▼──┐ │ ┌──▼────┐
-│Retry │ │ │Session│
-│Logic │ │ │Pool   │
-└──────┘ │ └───────┘
-         │
-    ┌────▼─────┐
-    │OpenRouter│
-    │   API    │
-    └──────────┘
-```
-
-### Components
-
-- **Client**: Core API client with retry logic
-- **Circuit Breaker**: Fault tolerance mechanism
-- **Session Pool**: Connection pooling for performance
-- **Models**: Pydantic schemas for type safety
-- **Exceptions**: Custom exception hierarchy
-- **Config**: Centralized configuration management
-
-## 📊 Configuration
-
-### Environment Variables
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `OPENROUTER_API_KEY` | Yes | - | Your API key |
-| `DEFAULT_MODEL` | No | `xiaomi/mimo-v2-flash:free` | Default model |
-| `ENVIRONMENT` | No | `development` | Environment name |
-| `MAX_RETRIES` | No | `3` | Maximum retries |
-| `REQUEST_TIMEOUT` | No | `30` | Timeout in seconds |
-| `MAX_TOKENS_PER_REQUEST` | No | `2000` | Token limit |
-
-### Model Configuration
-
-```python
-from config.settings import get_settings
-
-settings = get_settings()
-settings.default_model = "xiaomi/mimo-v2-flash:free"
-settings.fallback_model = "kwaipilot/kat-coder-pro-v1:free"
-```
-
-## 🧪 Testing
+The simplest way to see the integration in action:
 
 ```bash
-# Run all tests
-pytest
-
-# Run with coverage
-pytest --cov=src --cov-report=html
-
-# Run specific test
-pytest tests/test_client.py -v
+python examples/manus_example.py
 ```
 
-## 📈 Monitoring
-
-### Metrics
-
-```python
-# Get metrics summary
-summary = client.get_metrics_summary()
-
-# Outputs:
-# {
-#     "total_calls": 10,
-#     "successful_calls": 9,
-#     "failed_calls": 1,
-#     "success_rate": "90.00%",
-#     "total_tokens": 1500,
-#     "total_cost_usd": "$0.00",
-#     "average_duration_ms": "245.32"
-# }
-```
-
-### Logging
-
-```python
-import logging
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-
-# Client will log:
-# - Request/response details
-# - Error information
-# - Circuit breaker state changes
-# - Retry attempts
-```
-
-## 🔒 Security
-
-### Best Practices
-
-1. **Never commit `.env`** - Always in `.gitignore`
-2. **Use environment variables** - No hardcoded secrets
-3. **Rotate API keys** - Regular key rotation
-4. **Validate inputs** - Pydantic validation enabled
-5. **Rate limiting** - Configured in settings
-
-### API Key Management
-
-```bash
-# Development
-export OPENROUTER_API_KEY="sk-or-v1-dev-key"
-
-# Production (use secrets manager)
-# AWS Secrets Manager
-# HashiCorp Vault
-# Kubernetes Secrets
-```
-
-## 📦 Deployment
-
-### Docker
-
-```dockerfile
-FROM python:3.11-slim
-
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-
-COPY . .
-
-ENV OPENROUTER_API_KEY=""
-CMD ["python", "your_app.py"]
-```
-
-### Kubernetes
-
-```yaml
-apiVersion: v1
-kind: Secret
-metadata:
-  name: openrouter-secret
-type: Opaque
-data:
-  api-key: <base64-encoded-key>
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: openrouter-app
-spec:
-  template:
-    spec:
-      containers:
-      - name: app
-        env:
-        - name: OPENROUTER_API_KEY
-          valueFrom:
-            secretKeyRef:
-              name: openrouter-secret
-              key: api-key
-```
-
-## 🎓 Examples
-
-### Example 1: Simple Chat
-
-```python
-from src.openrouter import OpenRouterClient, Message
-
-with OpenRouterClient() as client:
-    messages = [Message(role="user", content="Hello!")]
-    response = client.chat_completion(messages)
-    print(response.choices[0].message.content)
-```
-
-### Example 2: Conversation
-
-```python
-messages = []
-
-# Turn 1
-messages.append(Message(role="user", content="What is AI?"))
-response = client.chat_completion(messages)
-messages.append(Message(
-    role="assistant",
-    content=response.choices[0].message.content
-))
-
-# Turn 2
-messages.append(Message(role="user", content="Give me an example"))
-response = client.chat_completion(messages)
-```
-
-### Example 3: Streaming
-
-```python
-messages = [Message(role="user", content="Write a story")]
-
-for chunk in client.stream_chat_completion(messages):
-    print(chunk, end="", flush=True)
-```
-
-## 📖 API Reference
-
-See [API.md](docs/API.md) for complete API documentation.
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-**Issue**: `AuthenticationError: Invalid API key`
-
-**Solution**: Check your `.env` file and verify API key is correct.
+This script sends a task to Manus and prints the result from the ManusClient.
 
 ---
 
-**Issue**: `RateLimitError: Rate limit exceeded`
+## Project Structure
 
-**Solution**: Free tier has 50 requests/day limit. Wait or upgrade plan.
+Key parts of the project:
+
+- `src/manus/`  
+  - `client.py` – ManusClient, high‑level API for creating and polling tasks via Manus.  
+  - `models.py` – Pydantic models for tasks, results, and internal payloads.  
+  - `webhook.py` – ManusWebhookHandler for processing Manus webhooks.  
+  - `exceptions.py` – typed exceptions for Manus errors and timeouts.  
+  - `__init__.py` – public exports for `ManusClient` and `ManusWebhookHandler`.
+- `examples/`  
+  - `manus_example.py` – minimal example using ManusClient.
+- `tests/`  
+  - `test_manus.py` – unit tests for Manus integration.  
+  - `test_full_integration.py`, `test_simple.py` – integration-style tests and flow checks.
+
+See `PROJECT_STRUCTURE.txt` for a more detailed, commented structure description.
 
 ---
 
-**Issue**: `ModelNotFoundError`
+## Architecture
 
-**Solution**: Check model ID is correct. List available models at openrouter.ai/models
+High‑level ideas:
 
-## 📞 Support
+- All external Manus access goes through `ManusClient`.  
+- Webhook callbacks are handled by `ManusWebhookHandler` and can be wired to any ASGI/WSGI framework.  
+- Pydantic models provide strict validation for inputs/outputs, making the integration safer to extend.
 
-- **Documentation**: [OpenRouter Docs](https://openrouter.ai/docs)
-- **API Status**: [status.openrouter.ai](https://status.openrouter.ai)
-- **Models**: [openrouter.ai/models](https://openrouter.ai/models)
+For a deeper explanation of design decisions and Phase 1 goals, see:
 
-## 📄 License
+- `ARCHITECTURE.md` – core concepts and internal components.  
+- `PHASE1_SUCCESS.md` – notes on completing Phase 1 (scope, testing, planned Phase 2).
 
-MIT License - See LICENSE file for details
+---
 
-## 🤝 Contributing
+## Environment & Configuration
 
-1. Fork the repository
-2. Create feature branch
-3. Add tests
-4. Submit pull request
+Most configuration is done via environment variables:
 
-## ✨ Acknowledgments
+- Minimal required variables are at the top of `.env.example`.  
+- Optional settings cover GitHub webhooks, dashboards, databases, logging, and rate limiting.
 
-- OpenRouter for providing unified AI API access
-- Research by Manus for comprehensive testing
-- Enterprise best practices from production deployments
+You can keep your local `.env` small and only add optional variables if you enable corresponding features.
+
+---
+
+## Status
+
+Phase 1 (Manus integration + tests) is complete:
+
+- Manus client with typed models and error handling.  
+- Webhook handler skeleton.  
+- Unit and integration tests with high coverage.  
+
+Phase 2 (dashboards, GitHub automation, extended monitoring) can be built on top of this foundation.
+
+## Documentation
+
+- `ARCHITECTURE.md` – internal architecture notes.
+- `PHASE1_SUCCESS.md` – Phase 1 scope and status.
+- `PROJECT_STRUCTURE.txt` – detailed file layout.
+- `docs/archive/*` – internal guides and planning notes (not required for usage).
