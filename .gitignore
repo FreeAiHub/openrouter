@@ -42,3 +42,15 @@ secrets/
 *.pem
 *.key
 credentials.json
+
+# Manus AI specific
+.manus_cache/
+manus_tasks.db
+manus_tasks.db-journal
+manus_tasks.db-wal
+
+# Environment
+.env.production
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc
