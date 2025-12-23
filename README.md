@@ -103,6 +103,18 @@ task = manus_client.create_task(
 
 ---
 
+## Design Principles
+
+Our architecture follows these core engineering principles:
+
+- **Clear Boundaries**: Strict separation between client layer, webhook handlers, and persistence layer. Each component has a single responsibility.
+- **Typed Models**: All external payloads use Pydantic models for validation and type safety. No raw dictionaries.
+- **Explicit Error Handling**: Comprehensive exception hierarchy with retry logic and circuit breakers for external API calls.
+- **Phase Separation**: Phase 1 focuses on core integration (Manus + OpenRouter). Phase 2 adds DX improvements (monitoring, webhooks, persistence).
+- **Observability First**: Structured logging, metrics, and health checks built-in from day one, not bolted on later.
+
+---
+
 ## Project Structure
 
 Key parts of the project:
@@ -149,6 +161,41 @@ You can keep your local `.env` small and only add optional variables if you enab
 
 ---
 
+## Roadmap (Phase 2)
+
+Phase 2 focuses on production-ready features: monitoring, webhooks, and persistence.
+
+### 🎯 Planned Features
+
+**1. Dashboard & Monitoring (UI)**  
+- Real-time task monitoring with filters and pagination  
+- REST API: `GET /api/tasks`, `GET /api/stats`  
+- WebSocket for live updates  
+- Simple API key authentication  
+- [Issue #1](https://github.com/FreeAiHub/openrouter/issues/1)
+
+**2. GitHub Webhooks Integration**  
+- Automatic processing of GitHub Issues and PRs  
+- Full flow: GitHub → Webhook → Validation → Manus → GitHub Update  
+- Comprehensive failure handling and retry logic  
+- Unit & integration tests with mocks  
+- [Issue #2](https://github.com/FreeAiHub/openrouter/issues/2)
+
+**3. Database & Task History**  
+- Normalized schema: tasks, events, metrics, retry queue  
+- Repository pattern with idempotency guarantees  
+- Alembic migrations and backup strategy  
+- Performance benchmarks (< 100ms queries)  
+- [Issue #3](https://github.com/FreeAiHub/openrouter/issues/3)
+
+### 📊 Success Metrics
+- **Performance**: API response time < 200ms (p95)
+- **Reliability**: 99.9% uptime, < 0.1% error rate
+- **Test Coverage**: 90%+ across all Phase 2 components
+- **Scalability**: Support 1000+ concurrent tasks
+
+---
+
 ## Status
 
 Phase 1 (Manus integration + tests) is complete:
@@ -165,3 +212,16 @@ Phase 2 (dashboards, GitHub automation, extended monitoring) can be built on top
 - `PHASE1_SUCCESS.md` – Phase 1 scope and status.
 - `PROJECT_STRUCTURE.txt` – detailed file layout.
 - `docs/archive/*` – internal guides and planning notes (not required for usage).
+
+---
+
+## Next Steps
+
+To start contributing to Phase 2:
+
+1. **Pick an issue**: Choose one of the three Phase 2 issues above
+2. **Read the spec**: Each issue has detailed acceptance criteria
+3. **Create a branch**: `git checkout -b feature/phase2-dashboard`
+4. **Submit PR**: Include tests, documentation, and performance benchmarks
+
+All code changes must trigger automated builds and tests via GitHub Actions.
