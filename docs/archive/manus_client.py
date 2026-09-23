@@ -283,7 +283,7 @@ class ManusWebhookHandler:
 # Пример использования
 if __name__ == "__main__":
     # Создание клиента
-    client = ManusClient(api_key="sk-Ng1s0QVjeZXa1DjQjJw8qZbB7xL96AdiKAYdhgu-mMzn5tvwd8XlJRfe-ZxSMQ8mb40OP4nrRyxjsAlobevlHUWZ8Pkt")
+    client = ManusClient(api_key="ВАШ_КЛЮЧ_МОДЕЛИ")
     
     # Создание задачи
     task = client.create_task(

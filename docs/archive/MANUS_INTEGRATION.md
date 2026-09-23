@@ -11,7 +11,7 @@
 
 **⚠️ БЕЗОПАСНОСТЬ:** Ваш API ключ Manus:
 ```
-sk-Ng1s0QVjeZXa1DjQjJw8qZbB7xL96AdiKAYdhgu-mMzn5tvwd8XlJRfe-ZxSMQ8mb40OP4nrRyxjsAlobevlHUWZ8Pkt
+ВАШ_КЛЮЧ_МОДЕЛИ
 ```
 
 **НЕ ДЕЛИТЕСЬ** этим ключом! Я сохраню его для настройки webhooks, но НИКОГДА не добавлю в Git.
@@ -148,7 +148,7 @@ openrouter/
 OPENROUTER_API_KEY=ваш-ключ
 
 # Manus
-MANUS_API_KEY=sk-Ng1s0QVjeZXa1DjQjJw8qZbB7xL96AdiKAYdhgu-mMzn5tvwd8XlJRfe-ZxSMQ8mb40OP4nrRyxjsAlobevlHUWZ8Pkt
+MANUS_API_KEY=ВАШ_КЛЮЧ_МОДЕЛИ
 
 # GitHub
 GITHUB_TOKEN=ваш-токен (для webhooks)
