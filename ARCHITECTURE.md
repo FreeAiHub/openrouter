@@ -602,7 +602,7 @@ def verify_manus_signature(payload: str, signature: str, secret: str) -> bool:
 
 ```python
 # ❌ ПЛОХО - Hardcoded keys
-api_key = "sk-Ng1s0QVjeZXa1DjQjJw8..."
+api_key = "sk-ЗАХАРДКОЖЕННЫЙ-КЛЮЧ"
 
 # ✅ ХОРОШО - Environment variables
 import os
